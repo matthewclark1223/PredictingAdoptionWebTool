@@ -62,8 +62,18 @@ terra::coltab(r) <- data.frame(ID=c(0:11), cols=c(
   
 )) #set the colors
 
+
+levels(r) = data.frame(ID=c(0:11), desc=c(  #set the levels
+  "NA","Closed forest","Open forest",
+  "Shrubs","Herbaceous vegetation",
+  "Herbaceous wetland", "Bare","Snow/Ice","Agriculture",
+  "Urban","Waterbody", "Sea"
+))
 raster::plot(r)
-plot(aoi, col=alpha("red",0.4), add=TRUE)
+
+
+
+plot(aoi, col=alpha("red",0.2), border="red", lwd=1, add=TRUE)
 
 
 
