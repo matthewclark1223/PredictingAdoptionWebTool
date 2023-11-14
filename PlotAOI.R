@@ -2,7 +2,8 @@ library(tidyverse)
 library(sf)
 
 aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
-#aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
+aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
+aoi<-biodiv
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
 
 #ggplot(aoi)+geom_sf()
@@ -21,6 +22,7 @@ check_overlap<-function(raster,poly){
   
 }
 
+
 #list out all of the tifs for subsaharan africa
 tifs<-list.files("./Data/LandCover/ClassifiedRasts",pattern=".tif" ) 
 #get the full file paths
@@ -37,6 +39,7 @@ for(i in 1:nrow(tifs)){
 tifs<-tifs%>%filter(load==TRUE) #filter out ones without overlap
 rasts<-lapply(c(tifs$grid), raster::raster)  #load the overlapping ones into a list
 
+
 rastsClip<- lapply(rasts,terra::crop, aoi)  #crop the rasters to the bounding box of the polygon
 
 #maybe do this one after the mosaic#############
@@ -46,8 +49,17 @@ rastsClip<- lapply(rasts,terra::crop, aoi)  #crop the rasters to the bounding bo
 ic<-terra::sprc(lapply(rastsClip, terra::rast)) #turn each raster::raster into a terra::raster then combine
 r <- terra::mosaic(ic)
 
-terra::coltab(r) <- data.frame(ID=c(0:11), cols=c(
-  "#636363", #0 = na
+levels(r) = data.frame(ID=c(1:11), desc=c(  #set the levels
+  "Closed forest","Open forest",
+  "Shrubs","Herbaceous vegetation",
+  "Herbaceous wetland", "Bare","Snow/Ice","Agriculture",
+  "Urban","Waterbody", "Sea"
+))
+
+
+terra::coltab(r) <- data.frame(ID=c(1:11), 
+                               cols=c(
+  
   "#00441b", #1 = closed forest
   "#006d2c", #2 = open forest
   "#addd8e",#3 = shrubs
@@ -62,18 +74,11 @@ terra::coltab(r) <- data.frame(ID=c(0:11), cols=c(
   
 )) #set the colors
 
-
-levels(r) = data.frame(ID=c(0:11), desc=c(  #set the levels
-  "NA","Closed forest","Open forest",
-  "Shrubs","Herbaceous vegetation",
-  "Herbaceous wetland", "Bare","Snow/Ice","Agriculture",
-  "Urban","Waterbody", "Sea"
-))
 raster::plot(r)
 
 
 
-plot(aoi, col=alpha("red",0.2), border="red", lwd=1, add=TRUE)
+plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.5, add=TRUE)
 
 
 

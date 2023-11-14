@@ -34,15 +34,17 @@ for(r in 1:length(rasts)){
   
   test<-terra::rast(test) #transform it to a terra object
   
-  levels(test) = data.frame(ID=c(0:11), desc=c(  #set the levels
-    "NA","closedForest","OpenForest",
+  r[r == 0] <- NA # this 0 value for NA was causing some issues in testing. just make actual NA
+  
+  levels(test) = data.frame(ID=c(1:11), desc=c(  #set the levels
+    "closedForest","OpenForest",
     "Shrubs","HerbaceousVeg",
     "HerbaceousWetland", "Bare","Snow/Ice","Agriculture",
     "Urban","Waterbody", "Sea"
   ))
   
   #rewrite the raster
-  terra::writeRaster(test,paste0("./Data/LandCover/ClassifiedRasts/reclassified",r,".tif"))
+  terra::writeRaster(test,paste0("./Data/LandCover/ClassifiedRasts/reclassified",r,".tif"),overwrite=TRUE  )
   
 }
 
