@@ -1,12 +1,12 @@
 library(deSolve)
-I0 = 0.02    # initial fraction infected
-S0 = 1 - I0 # initial fraction susceptible
+I0 = 0.02    # initial fraction adopted, seed
+S0 = 1 - I0 # initial fraction available to adopt
 
 
-# Assign transmission and pathogen-induced death/recovery rates:
-beta = 0.40 #rate of infection 0.4
-gamma = 0.15 #rate of recovery 0.15
-alpha = 0.002 #independent rate of infection 0.002
+# Assign rates of spread, drop-out, and independent uptake:
+beta = 0.40 #rate of spread 0.4
+gamma = 0.15 #rate of drop-out 0.15
+alpha = 0.002 #independent rate of adoption 0.002
 
 # We will use the package deSolve to integrate, which requires certain data structures.
 # Store parameters and initial values
