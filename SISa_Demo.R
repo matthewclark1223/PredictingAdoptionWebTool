@@ -4,9 +4,9 @@ S0 = 1 - I0 # initial fraction available to adopt
 
 
 # Assign rates of spread, drop-out, and independent uptake:
-beta = 0.40 #rate of spread 0.4
+beta = 0.30 #rate of spread 0.4
 gamma = 0.15 #rate of drop-out 0.15
-alpha = 0.002 #independent rate of adoption 0.002
+alpha = 0.02 #independent rate of adoption 0.002
 
 # We will use the package deSolve to integrate, which requires certain data structures.
 # Store parameters and initial values
@@ -19,7 +19,7 @@ params <- list(beta = beta,
 inits <- c(S0, I0) #0 denotes that it is an initial condition
 
 # Create a time series over which to integrate.
-# Here we have an epidemic that is observed over t_max number of days (or weeks or etc).
+
 t_min = 0
 t_max = 50
 times = t_min:t_max
@@ -29,9 +29,9 @@ times = t_min:t_max
 SISa <- function(t, y, params) {
   with(as.list(c(params, y)), {
     
-    dS = - beta * y[1] * y[2] +gamma * y[2] - alpha*y[1]#y[1] susceptible and y[2] is infected
+    dS = - beta * y[1] * y[2] +gamma * y[2] - alpha*y[1]#y[1] non-adopters (S) and y[2] is adopters (I)
     
-    dI = beta * y[1] * y[2] - gamma * y[2] + alpha*y[1]#susceptibles and recovered
+    dI = beta * y[1] * y[2] - gamma * y[2] + alpha*y[1]
     
     res <- c(dS,dI)
     list(res)
@@ -45,28 +45,29 @@ out <- ode(inits, times, SISa, params, method="rk")
 out <- data.frame(out)
 colnames(out) <- c("time", "S", "I")
 
-# quick plot of the epidemic
-plot(NA,NA, xlim = c(t_min, t_max), ylim=c(0, 1), xlab = "Time", ylab="Fraction of Host Population")
-lines(out$S ~ out$time, col="black")
+# quick plot of the simulated dynamic
+plot(NA,NA, xlim = c(t_min, t_max), ylim=c(0, 1), xlab = "Time", ylab="Proportion of population adopted")
+#lines(out$S ~ out$time, col="black")
 lines(out$I ~ out$time, col="red")
-legend(x = 30, y = 0.8, legend = c("Susceptible", "Infected"), 
-       col = c("black", "red"), lty = c(1, 1), bty="n")
+#legend(x = 30, y = 0.8, legend = c("Non-adopted", "Adopted"), 
+ #      col = c("black", "red"), lty = c(1, 1), bty="n")
 
 
-sample_days = 20 # number of days sampled throughout the epidemic. changing this around
-sample_n = 1000 # number of host individuals sampled per day
+
+sample_days = 10 # number of days sampled before fitting
+sample_n = 1000 # total population estimate
 
 # Choose which days the samples were taken. 
 # Ideally this would be daily, but we all know that is difficult.
-#sample_time = sort(sample(1:t_max, sample_days, replace=F))
+#sample_time = sort(sample(1:t_max, sample_days, replace=F))   #run this code if you want random sampling throughout time series
 
 sample_time = 1:sample_days #just sample the beginning!
 
-# Extract the "true" fraction of the population that is infected on each of the sampled days:
+# Extract the "true" fraction of the population that is adopted on each of the sampled days:
 sample_propinf = out[out$time %in% sample_time, 3]
 
 # Generate binomially distributed data.
-# So, on each day we sample a given number of people (sample_n), and measure how many are infected.
+# So, on each day we count the number of adopters in the population.
 # We expect binomially distributed error in this estimate, hence the random number generation.
 sample_y = rbinom(sample_days, sample_n, sample_propinf)
 points(x=1:sample_days,y=sample_y/sample_n,col="blue")
@@ -115,13 +116,8 @@ posts <- extract(mod)
 hist(posts$params[,1])
 hist(posts$params[,2])
 
-#R0 number of infected people
-R0<-(posts$params[,1]*0.20)/posts$params[,2]
-
-length(which(R0<1))/length(R0)
-
 #plot it
-# Proportion infected from the synthetic data:
+# Proportion adopted from the synthetic data:
 sample_prop = sample_y / sample_n
 
 # Model predictions across the sampling time period.
@@ -141,13 +137,16 @@ df_fit = data.frame(mod_median, mod_low, mod_high, mod_time)
 ggplot(df_sample, aes(x=sample_time, y=sample_prop)) +
   geom_point(col="black", shape = 19, size = 1.5) +
   # Error in integration:
-  geom_line(data = df_fit, aes(x=mod_time, y=mod_median), color = "red") + 
-  geom_line(data = df_fit, aes(x=mod_time, y=mod_high), color = "red", linetype=3) + 
-  geom_line(data = df_fit, aes(x=mod_time, y=mod_low), color = "red", linetype=3) + 
+  geom_line(data = df_fit, aes(x=mod_time, y=mod_median), color = "red",size=1) + 
+  geom_line(data = df_fit, aes(x=mod_time, y=mod_high), color = "red", linetype=3,size=1) + 
+  geom_line(data = df_fit, aes(x=mod_time, y=mod_low), color = "red", linetype=3,size=1) + 
   # Aesthetics
-  labs(x = "Time (days)", y = "Proportion Infected") + 
   scale_x_continuous(limits=c(0, 50), breaks=c(0,25,50)) +
   scale_y_continuous(limits=c(0,1), breaks=c(0,.5,1)) +
   theme_classic() + 
-  theme(axis.line.x = element_line(color="black"),
-        axis.line.y = element_line(color="black"))
+  theme_classic()+
+  xlab("Time")+ylab("Predicted adoption")+
+  theme(axis.title = element_text(colour = "black",size=16),
+        axis.text=element_text(color="black",size=14))
+
+

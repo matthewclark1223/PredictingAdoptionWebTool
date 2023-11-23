@@ -1,9 +1,9 @@
 library(tidyverse)
 library(sf)
 
-aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
-aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
-aoi<-biodiv
+#aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
+#aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
+aoi<-read_sf("./Data/ExampleBoundary/Kruger2Canyons/K2C.shp")
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
 
 #ggplot(aoi)+geom_sf()
@@ -78,7 +78,7 @@ raster::plot(r)
 
 
 
-plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.5, add=TRUE)
+plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.75, add=TRUE)
 
 
 

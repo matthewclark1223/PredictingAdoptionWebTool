@@ -29,8 +29,8 @@ raster::plot(r)
 #plot the aoi
 plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.5, add=TRUE)
 
-#The st_crop doesn't seem to be working. I think it's cropping by the bbox, not the polygon. 
-plot(del, col=alpha("#252525",0.99), border=alpha("pink",0.001),lwd=0.1 , add=TRUE)
+ 
+plot(settlements, col=alpha("black",0.99), border=alpha("white",0.001),lwd=0.1 , add=TRUE)
 
 
 #now do buffering by resource type
