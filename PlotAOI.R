@@ -78,7 +78,7 @@ raster::plot(r)
 
 
 
-plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.75, add=TRUE)
+plot(aoi, col=alpha("#c51b8a",0.15), border="black", lwd=2.75, add=TRUE)
 
-
+plot(aoi, col=alpha("yellow",0.35), border="black", lwd=2.75, add=TRUE)
 

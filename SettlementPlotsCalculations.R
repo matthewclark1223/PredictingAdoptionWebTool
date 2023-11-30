@@ -29,9 +29,17 @@ raster::plot(r)
 #plot the aoi
 plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.5, add=TRUE)
 
+
  
 plot(settlements, col=alpha("black",0.99), border=alpha("white",0.001),lwd=0.1 , add=TRUE)
 
+
+#Settlement centroids
+Cents<-settlements%>%
+  st_centroid()
+
+plot(aoi, col=alpha("yellow",0.35), border="black", lwd=2.75, add=TRUE)
+plot(Cents, col=alpha("black",0.99), fill=alpha("black",0.99),lwd=0.1 , add=TRUE,pch=20)
 
 #now do buffering by resource type
 
