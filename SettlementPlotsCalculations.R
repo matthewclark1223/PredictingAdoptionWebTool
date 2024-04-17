@@ -39,7 +39,7 @@ Cents<-settlements%>%
   st_centroid()
 
 plot(aoi, col=alpha("yellow",0.35), border="black", lwd=2.75, add=TRUE)
-plot(Cents, col=alpha("black",0.99), fill=alpha("black",0.99),lwd=0.1 , add=TRUE,pch=20)
+plot(Cents, col=alpha("black",0.6), fill=alpha("black",0.6),lwd=0.9 , add=TRUE,pch=20,cex=3)
 
 #now do buffering by resource type
 
