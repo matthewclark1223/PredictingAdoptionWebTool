@@ -3,8 +3,9 @@ library(sf)
 
 #aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
 #aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
-#aoi<-read_sf("./Data/ExampleBoundary/Kruger2Canyons/K2C.shp")
-aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
+aoi<-read_sf("./Data/ExampleBoundary/Kruger2Canyons/K2C.shp")
+#aoi<-read_sf("./Data/ExampleBoundary/GADM_SouthAfrica/gadm41_ZAF_3.shp")
+#aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
 
 
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
@@ -77,7 +78,7 @@ terra::coltab(r) <- data.frame(ID=c(1:11),
   
 )) #set the colors
 
-terra::plot(r,legend=FALSE,mar=c(2,2,2,9))
+terra::plot(r,legend=FALSE,mar=c(2.5,2,2,9),xlab="Longitude",ylab="Latitude")
 Inside <- raster::mask(r, aoi)
 
 
@@ -99,6 +100,7 @@ terra::coltab(Inside) <- data.frame(ID=c(1:11),
 
 
 raster::plot(Inside,add=T, legend = TRUE)
+
 
 
 #plot(aoi, col=alpha("grey",0.001), border="#c51b8a", lwd=1, add=TRUE)

@@ -1,4 +1,3 @@
-
 COUNTRIES<-c("South Africa")
 BUFFER_KM<-10
 BUILDING_COUNT<-c("101-250","251-1000","1001 and up")#"1-50","51-100","101-250","251-1000","1001 and up"
@@ -10,7 +9,7 @@ for(i in 1:length(COUNTRIES)){
                       list.files(paste0("./Data/SettlementsPopulation/Settlements/",
                                         country),pattern=".shp"))
   files<-c(files,countryfile)
-  }
+}
 
 
 settlements<-lapply(c(files), sf::read_sf)  #load the country settlement files into a list
@@ -30,7 +29,7 @@ raster::plot(r)
 plot(aoi, col=alpha("#c51b8a",0.3), border="black", lwd=0.5, add=TRUE)
 
 
- 
+
 plot(settlements, col=alpha("black",0.99), border=alpha("white",0.001),lwd=0.1 , add=TRUE)
 
 
@@ -42,8 +41,3 @@ plot(aoi, col=alpha("yellow",0.35), border="black", lwd=2.75, add=TRUE)
 plot(Cents, col=alpha("black",0.6), fill=alpha("black",0.6),lwd=0.9 , add=TRUE,pch=20,cex=3)
 
 #now do buffering by resource type
-
-
-
-
-
