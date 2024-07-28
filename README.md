@@ -1,4 +1,4 @@
-# PredictingAdoptionWebTool
+# Scaling4Nature 
 This repository contains all of the R and STAN code for running modules one and two of the Scaling4Nature web tool. There is also example data for the forecast model for module 2. All other background data must be downloaded from this link:
 
 Here are the instructions for running the code. This code relies on the following R packages, all available from CRAN: tidyverse, Rstan, Rstan, SF, Raster, Terra. There will also be dependencies. 
