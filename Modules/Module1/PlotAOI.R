@@ -1,15 +1,24 @@
 library(tidyverse)
 library(sf)
 
+#This code clips the land cover data to the bounding box and 
+#the project area for a given project
+#It also plots these data showing the project 
+#land cover in a darker color than the bounding box
+
+#Below are sample project areas of various sizes
+#comment out all but one
+
 #aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
 #aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
 aoi<-read_sf("./Data/ExampleBoundary/Kruger2Canyons/K2C.shp")
 #aoi<-read_sf("./Data/ExampleBoundary/GADM_SouthAfrica/gadm41_ZAF_3.shp")
 #aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
 
-
+#Set the projection
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
 
+#plot the project area
 #ggplot(aoi)+geom_sf()
 
 #Make custom function to check if a given raster and polygon bounding box overlap
@@ -61,8 +70,8 @@ levels(r) = data.frame(ID=c(1:11), desc=c(  #set the levels
 ))
 
 
-terra::coltab(r) <- data.frame(ID=c(1:11), 
-                               cols=c(
+terra::coltab(r) <- data.frame(ID=c(1:11), #set colors for each land cover type
+                               cols=c(     #for the full bounding box
   
   alpha("#00441b",0.3), #1 = closed forest
   alpha("#006d2c",0.3), #2 = open forest
@@ -76,13 +85,14 @@ terra::coltab(r) <- data.frame(ID=c(1:11),
   alpha( "#3690c0",0.3),#10 = waterbody
   alpha("#045a8d",0.3)#11 = sea
   
-)) #set the colors
+)) 
 
+#plot the full bounding box
 terra::plot(r,legend=FALSE,mar=c(2.5,2,2,9),xlab="Longitude",ylab="Latitude")
-Inside <- raster::mask(r, aoi)
+Inside <- raster::mask(r, aoi) #make the project area a deeper color
 
 
-terra::coltab(Inside) <- data.frame(ID=c(1:11), 
+terra::coltab(Inside) <- data.frame(ID=c(1:11), #set the project area colors
                                cols=c(
                                  
  "#00441b", #1 = closed forest
@@ -99,12 +109,9 @@ terra::coltab(Inside) <- data.frame(ID=c(1:11),
  )) #set the colors
 
 
+# #plot the project area on top of the bounding box
 raster::plot(Inside,add=T, legend = TRUE)
 
 
 
-#plot(aoi, col=alpha("grey",0.001), border="#c51b8a", lwd=1, add=TRUE)
-#plot(aoi, col=alpha("#c51b8a",0.15), border="black", lwd=2.75, add=TRUE)
-
-#plot(aoi, col=alpha("yellow",0.35), border="black", lwd=2.75, add=TRUE)
 

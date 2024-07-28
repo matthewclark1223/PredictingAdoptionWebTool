@@ -9,10 +9,11 @@ functions {
             real[] x_r,
             int[] x_i) {
       
-      real dydt[2];
+      real dydt[3];
       
-      dydt[1] = - params[1] * y[1] * y[2] + params[2]*y[2] - params[3]*y[1];
-      dydt[2] = params[1] * y[1] * y[2] - params[2] * y[2] + params[3]*y[1];
+      dydt[1] = - params[1] * y[1] * y[2]  - params[2]*y[1];
+      dydt[2] = params[1] * y[1] * y[2]  + params[2]*y[1];
+      dydt[3] = 0;
       
       return dydt;
     }
@@ -39,8 +40,9 @@ transformed data {
 }
 
 parameters {
-  real<lower = 0> params[n_params]; // Model parameters
+  real<lower = 0, upper = 1> params[n_params]; // Model parameters
   real<lower = 0, upper = 1> S0; // Initial fraction of hosts susceptible
+  real<lower = 0, upper = 1> M0; // Initial fraction of hosts immune STATIC
 }
 
 transformed parameters{
@@ -48,15 +50,23 @@ transformed parameters{
   real y0[n_difeq]; // Initial conditions for both S and I
 
   y0[1] = S0;
-  y0[2] = 1 - S0;
+  y0[2] = 1 - S0 - M0;
+  y0[3] = M0;
   
   y_hat = integrate_ode_rk45(SI, y0, t0, ts, params, x_r, x_i);
   
 }
 
 model {
-  params ~ normal(0, 2); //constrained to be positive
-  S0 ~ normal(0.5, 0.5); //constrained to be 0-1.
+  
+  params ~ normal(0, 0.3); //constrained to be positive (0,0.4) used
+  //global = normal(0.80, 0.1)
+ // S shape = normal(.5,.1)
+  //R shape = normal (.2,.1)
+  S0 ~ normal(0.9, 0.1); //constrained to be 0-1. (0.5,0.3) for multirun
+  //global = normal(0.2, 0.1)
+
+  M0 ~ normal(0.1, 0.1); //constrained to be 0-1. 
   
   y ~ binomial(n_sample, y_hat[, 2]); //y_hat[,2] are the fractions infected from the ODE solver
   
@@ -69,4 +79,3 @@ generated quantities {
   fake_I = integrate_ode_rk45(SI, y0, t0, fake_ts, params, x_r, x_i);
   
 }
-

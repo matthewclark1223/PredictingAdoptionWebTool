@@ -1,45 +1,48 @@
 library(deSolve)
 I0 = 0.02    # initial fraction adopted, seed
-S0 = 1 - I0 # initial fraction available to adopt
+M0 = 0.45 #Proportion Immune
+S0 = 1 - (I0+M0) # initial fraction available to adopt
 
 
 # Assign rates of spread, drop-out, and independent uptake:
-beta = 0.30 #rate of spread 0.4
-gamma = 0.15 #rate of drop-out 0.15
+beta = 0.15 #rate of spread 0.4
+#gamma = 0.15 #rate of drop-out 0.15
 alpha = 0.02 #independent rate of adoption 0.002
 
 # We will use the package deSolve to integrate, which requires certain data structures.
 # Store parameters and initial values
 # Parameters must be stored in a named list.
 params <- list(beta = beta,
-               gamma = gamma,
+               #gamma = gamma,
                alpha=alpha)
 
 # Initial conditions are stored in a vector
-inits <- c(S0, I0) #0 denotes that it is an initial condition
+inits <- c(S0, I0,M0) #0 denotes that it is an initial condition
 
 # Create a time series over which to integrate.
 
 t_min = 0
-t_max = 50
+t_max = 52 #weekly monitoring
 times = t_min:t_max
 
 # We must create a function for the system of ODEs.
 # See the 'ode' function documentation for further insights.
-SISa <- function(t, y, params) {
+SIa <- function(t, y, params) {
   with(as.list(c(params, y)), {
     
-    dS = - beta * y[1] * y[2] +gamma * y[2] - alpha*y[1]#y[1] non-adopters (S) and y[2] is adopters (I)
+    dS = - beta * y[1] * y[2]  - alpha*y[1]#y[1] non-adopters (S) and y[2] is adopters (I)
     
-    dI = beta * y[1] * y[2] - gamma * y[2] + alpha*y[1]
+    dI = beta * y[1] * y[2]  + alpha*y[1]
     
-    res <- c(dS,dI)
+    dM = 0
+    
+    res <- c(dS,dI,dM)
     list(res)
   })
 }
 
 # Run the integration:
-out <- ode(inits, times, SISa, params, method="rk")
+out <- ode(inits, times, SIa, params, method="rk")
 #
 # Store the output in a data frame:
 out <- data.frame(out)
@@ -50,12 +53,12 @@ plot(NA,NA, xlim = c(t_min, t_max), ylim=c(0, 1), xlab = "Time", ylab="Proportio
 #lines(out$S ~ out$time, col="black")
 lines(out$I ~ out$time, col="red")
 #legend(x = 30, y = 0.8, legend = c("Non-adopted", "Adopted"), 
- #      col = c("black", "red"), lty = c(1, 1), bty="n")
+#      col = c("black", "red"), lty = c(1, 1), bty="n")
 
 
 
-sample_days = 10 # number of days sampled before fitting
-sample_n = 1000 # total population estimate
+sample_days = 15 # number of days sampled before fitting
+sample_n = 338 # total population estimate
 
 # Choose which days the samples were taken. 
 # Ideally this would be daily, but we all know that is difficult.
@@ -72,6 +75,11 @@ sample_propinf = out[out$time %in% sample_time, 3]
 sample_y = rbinom(sample_days, sample_n, sample_propinf)
 points(x=1:sample_days,y=sample_y/sample_n,col="blue")
 
+
+dat<-data.frame(Time=1:length(sample_y),Adopters=sample_y)
+write.csv(dat,file = "./Modules/Module2/ExampleAdoptionK2CSettlements.csv" )
+
+#####The code below runs the model as an example. 
 
 
 ###fitting Stan data
@@ -96,7 +104,7 @@ options(mc.cores = parallel::detectCores())
 
 
 # Fit and sample from the posterior
-mod = stan("./SISa.stan",
+mod = stan("./Modules/Module2/SIaM.stan",
            data = stan_d,
            pars = params_monitor,
            chains = 3,
@@ -148,5 +156,3 @@ ggplot(df_sample, aes(x=sample_time, y=sample_prop)) +
   xlab("Time")+ylab("Predicted adoption")+
   theme(axis.title = element_text(colour = "black",size=16),
         axis.text=element_text(color="black",size=14))
-
-

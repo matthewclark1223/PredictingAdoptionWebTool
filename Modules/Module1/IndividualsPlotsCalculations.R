@@ -1,15 +1,17 @@
-
-BUFFER_KM<-10 #~10km in SA
-BUFFER_PERC<-0.1 #e.g., 10% of pixels need to be grassland within 10 km buffer
-BUILDING_COUNT<-c("101-250","251-1000","1001 and up")#"1-50","51-100","101-250","251-1000","1001 and up"
-
+BUFFER_KM<-10 #~10km
+#Load the landscan gridded population data from 2022
 Pop<-terra::rast("./Data/SettlementsPopulation/landscan-global-2022.tif")
 
+#Crop the bounding box to the project area
 Pop<-terra::crop(Pop,aoi)
+
+#Make all values outside the project area NA
 Pop<-terra::mask(Pop,aoi)
 
-terra::plot(Pop,colNA="#252525")
+#simple plot of population data
+#terra::plot(Pop,colNA="#252525")
 
+#Get the total number of individuals living in the project area
 PotentialAdopters<-sum(Pop[],na.rm=T)
 
 
@@ -18,45 +20,54 @@ PotentialAdopters<-sum(Pop[],na.rm=T)
 land_cover_class <- 4 #grassland
 
 # Reclassify the land cover raster to binary (1 for the class of interest, NA for others)
-land_cover_binary <-r
-land_cover_binary[]<-ifelse(r[]==land_cover_class,1,NA)
+land_cover_binary <-r #new raster
+land_cover_binary[]<-ifelse(r[]==land_cover_class,1,NA) #reclassify
 
+#This is removing pixels of land cover that aren't connected at 100< others.
+#We're essentially just reducing noise here
+land_cover_binary <- terra::sieve(land_cover_binary, 100,directions=8) 
 
-land_cover_binary <- terra::sieve(land_cover_binary, 100,directions=8) #This is removing pixels of land cover that aren't connected at 100< others.
-
-
+#Reclassify again. The sieving creates 0's instead of NAs
 land_cover_binary[]<-ifelse(land_cover_binary[]==1,1,NA)
-terra::plot(land_cover_binary)
+
+#Plot results
+#terra::plot(land_cover_binary)
+#patch<-terra::patches(land_cover_binary)
 
 
-patch<-terra::patches(land_cover_binary)
+#Turn the land cover into polygon data fo rbetter buffering
+patchpoly<-terra::as.polygons(land_cover_binary)
 
-buf<-terra::buffer(patch, 0.1)
-
-
-patchpoly<-terra::as.polygons(patch)
-terra::plot(patch)
-terra::plot(patchpoly)
-
+#Make it an sf vector object
 patchpoly<-sf::st_as_sf(patchpoly)
-sf::st_as_sf(st_cast(patchpoly, "POLYGON"))
 
-ggplot(patchpoly)+geom_sf(fill="green")
+# Latitude conversion (constant) function
+km_to_degrees_lat <- function(km) {
+  return(km / 111)
+}
+# Convert assigned buffer distance to degrees
+degrees_lat <- km_to_degrees_lat(BUFFER_KM)
 
+#Make buffer with calculated distance in degrees
+buf<-st_buffer(patchpoly, degrees_lat) 
+st_crs(buf)<-"+proj=longlat +datum=WGS84 +no_defs" 
+
+#plot buffer
+#p<-ggplot(patchpoly)+geom_sf(fill="green")+
+ # geom_sf(data=buf,fill="red",alpha=0.4)
+
+#Extract the population counta inside the buffer
 extract <- terra::extract(x = Pop,              # Raster layer
-                          y = patchpoly,    # SpatialPoints* object   
+                          y = buf,    # SpatialPoints* object   
                           na.rm = TRUE,       # Remove NAs
                           fun = sum   ) 
-names(extract)[2]<-"pop"
+names(extract)[2]<-"pop" #change the column name
 
-patchpoly$pop<-as.vector(extract$pop)
-
-
-
-PotentialAdopters<-sum(patchpoly$pop,na.rm=T)
+patchpoly$pop<-as.vector(extract$pop)#Make sure it's a vector not a df
 
 
 
-ggplot(patchpoly)+
-  geom_sf(aes(fill=pop))
+PotentialAdopters<-sum(patchpoly$pop,na.rm=T)#Get the sum
+
+
 
