@@ -8,13 +8,13 @@ df<-na.omit(df) #get rid of NAs
 #### STEP 2: Set potential adopters (total population)
 
 #Import potential adopters from Module 1
-sample_n = PotentialAdopters
+#sample_n = PotentialAdopters
 
 # OR set the number directly if known
 
 #338 is used for the example dataset of ALL 
 #settlements inside K2c biosphere reserve over 100 buildings
-#sample_n<-338
+sample_n<-338
 
 
 #Plot adoption timeline
@@ -128,58 +128,4 @@ ggplot(draws, aes(x=as.integer(mod_time), y=value)) +
 
 
 
-
-
-
-#simple ribbon
-draws2<-draws%>%group_by(mod_time)%>%summarise(high=quantile(value,0.95),low=quantile(value,0.05))
-ggplot(draws2,aes(x=as.integer(mod_time)) ) +
-  geom_ribbon(data=filter(draws2,as.integer(mod_time)>sample_days),
-              aes(x=as.integer(mod_time),ymin = low, ymax = high), 
-              fill = "#525252", alpha = 0.5)+
-  geom_ribbon(data=draws2,
-              aes(x=as.integer(mod_time),ymin = low, ymax = high), 
-              fill = "#525252", alpha = 0.5)+
-  #geom_point(data=df,aes(x=X,y=Adopters/sample_n),color="red")+
-  geom_line(data=df,aes(x=X,y=Adopters/sample_n),color="red",size=1.0)+
-  geom_vline(xintercept = sample_days+1,linetype="longdash")+
-  # annotate("text", x = 5, y = .08, label = "True rate",color="red")+
-  #annotate("text", x = 9.5, y = .02, label = "Prediction (MAE: 0.54%)",color="#525252")+
-  ggthemes::theme_clean()+
-  xlab("Project year")+ylab("Adoption")+
-  theme(axis.title = element_text(colour = "black",size=16),
-        axis.text=element_text(color="black",size=14))#+ylim(0,0.25)
-
-#Colorful plot
-
-
-ggplot(draws, aes(x=as.integer(mod_time), y=value)) +
-  tidybayes::stat_lineribbon(data=draws,aes(fill_ramp = after_stat(.width)), 
-                             .width = c(0.05,0.1,0.2,0.3,0.4,0.5,0.7,0.8,0.9), fill = "#2297E6",alpha=0.75) +
-  #samples
-  #geom_line(data=draws,mapping = aes(x = as.integer(mod_time), 
-  #                                  y=value, group = draw), color="#252525",alpha = 0.05, size=0.1) +
-  
-  #points
-  geom_point(data=df[1:sample_days,],aes(x=X,y=Adopters/sample_n,fill="Training"),
-             col="#525252" ,shape = 21, size = 5,stroke=2) +
-  geom_point(data=df[sample_days+1:nrow(df),],aes(x=X,y=Adopters/sample_n,fill="Test"),
-             col="#525252" ,shape = 21, size = 5,stroke=2)+
-  theme_classic()+
-  scale_fill_manual(name="",values=c("Training"="#28E2E5","Test"="#CD0BBC"),
-                    guide = guide_legend(reverse = TRUE))+
-  xlab("Time")+ylab("Adoption")+
-  theme(axis.title = element_text(colour = "black",size=16),
-        axis.text=element_text(color="black",size=14))
-
-
-#mae
-
-Observed<-df[sample_days+1:nrow(df),]$Adopters/sample_n
-Observed<-na.omit(Observed)
-
-mod_median = na.omit(apply(posts$fake_I[,,2], 2, median)[sample_days+1:nrow(df)])
-length(Observed) == length(mod_median)
-
-mean(abs(mod_median-Observed))
 
