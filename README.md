@@ -6,6 +6,8 @@ Here are the instructions for running the code. This code relies on the followin
 ## Module 1
 * Step one: Run the code from the PlotAOI.R script. This will plot the area of interest, including European Space Agency land cover classification estimates for both the specific area and the surrounding bounding box. This code is required to be run before the other code from Module 1.
 * Step two: Run EITHER the SettlementsPlotsCalculations.R script or the IndividualsPlotsCalculations.R Script. The 'settlements' script calculates the total number of human settlements of a specified size within the project area and has optional functionality to filter the number of settlements within the area to only those within a specified buffer distance of a resource type of interest, e.g., mangrove, grassland, ocean, etc. The 'individuals' script does the same calculations for the total number of people, rather than settlements.
+  ![image](https://github.com/user-attachments/assets/2381d638-e016-4c46-9293-bdbc7bc258d0)
+
 * Optional step three: Run the SettlementsBoundaryPlot.R script to plot the boundaries of all human settlements within the project area. This is not necessary and is candidate functionality for cutting from the tool.
 * The end result of this module is a figure of the potential adopters in space and an R object named 'PotentialAdopters' that contains the total number of potential adopters in the population.
 
