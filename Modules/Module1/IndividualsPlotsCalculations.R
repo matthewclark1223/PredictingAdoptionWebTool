@@ -25,7 +25,7 @@ land_cover_binary[]<-ifelse(r[]==land_cover_class,1,NA) #reclassify
 
 #This is removing pixels of land cover that aren't connected at 100< others.
 #We're essentially just reducing noise here
-land_cover_binary <- terra::sieve(land_cover_binary, 100,directions=8) 
+land_cover_binary <- terra::sieve(land_cover_binary, 20,directions=8) 
 
 #Reclassify again. The sieving creates 0's instead of NAs
 land_cover_binary[]<-ifelse(land_cover_binary[]==1,1,NA)

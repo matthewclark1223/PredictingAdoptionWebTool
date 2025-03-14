@@ -15,8 +15,6 @@ plotAoi<-function(aoi){
   
   
 
-  
-
 #Set the projection
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
 
@@ -62,7 +60,7 @@ rastsClip<- lapply(rasts,terra::crop, aoi)  #crop the rasters to the bounding bo
 #######################################
 
 ic<-terra::sprc(lapply(rastsClip, terra::rast)) #turn each raster::raster into a terra::raster then combine
-r <- terra::mosaic(ic)
+r <<- terra::mosaic(ic)
 
 levels(r) = data.frame(ID=c(1:11), desc=c(  #set the levels
   "Closed forest","Open forest",
@@ -119,10 +117,64 @@ raster::plot(Inside,add=T, legend = TRUE)
 #Below are sample project areas of various sizes
 #comment out all but one
 
-#aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
-#aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
+
+
+makeAOI<-function(country,region=NA,district=NA,ward=NA ){
+  folder<-paste0("./Data/CountryShapes/",country)
+  shp<-list.files(folder,pattern=".shp",full.names = T)
+  shp<-read_sf(shp)
+  
+  if(is.na(ward)[1]==F){
+    shp<-shp%>%dplyr::filter(NAME_3 %in% ward)
+    return(shp)
+  }
+  
+  if(is.na(district)[1]==F){
+    shp<-shp%>%dplyr::filter(NAME_2 %in% district)
+    return(shp)
+  }
+  
+  if(is.na(region)[1]==F){
+    shp<-shp%>%dplyr::filter(NAME_1 %in% region)
+    return(shp)
+  }
+  
+  
+}
+
+aoi<-makeAOI(country="Angola",region=c("Bengo"),district=c("Ambriz","Dande"))
+
+
 aoi<-read_sf("./Data/CountryShapes/Angola/gadm41_AGO_3.shp")
-#aoi<-read_sf("./Data/ExampleBoundary/GADM_SouthAfrica/gadm41_ZAF_3.shp")
-#aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
+
 
 plotAoi(aoi=aoi)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
