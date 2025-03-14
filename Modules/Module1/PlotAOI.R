@@ -6,14 +6,16 @@ library(sf)
 #It also plots these data showing the project 
 #land cover in a darker color than the bounding box
 
-#Below are sample project areas of various sizes
-#comment out all but one
+#The function is defined below, then code to load the country / countries 
+# or a user-provided shape file is given
 
-#aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
-#aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
-aoi<-read_sf("./Data/ExampleBoundary/Kruger2Canyons/K2C.shp")
-#aoi<-read_sf("./Data/ExampleBoundary/GADM_SouthAfrica/gadm41_ZAF_3.shp")
-#aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
+
+
+plotAoi<-function(aoi){
+  
+  
+
+  
 
 #Set the projection
 st_crs(aoi)<-"+proj=longlat +datum=WGS84 +no_defs" 
@@ -112,6 +114,15 @@ terra::coltab(Inside) <- data.frame(ID=c(1:11), #set the project area colors
 # #plot the project area on top of the bounding box
 raster::plot(Inside,add=T, legend = TRUE)
 
+}
 
+#Below are sample project areas of various sizes
+#comment out all but one
 
+#aoi<-read_sf("./Data/ExampleBoundary/CoastalForestsEastAfrica.shp")
+#aoi<-read_sf("~/Pemba_Project/PembaShapeFile.shp")
+aoi<-read_sf("./Data/CountryShapes/Angola/gadm41_AGO_3.shp")
+#aoi<-read_sf("./Data/ExampleBoundary/GADM_SouthAfrica/gadm41_ZAF_3.shp")
+#aoi<-read_sf("./Data/ExampleBoundary/gadm41_MOZ_shp/gadm41_MOZ_0.shp")
 
+plotAoi(aoi=aoi)
